@@ -17,6 +17,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 type Payment struct {
@@ -30,6 +31,9 @@ func NewPayment(cfg *config.Payments) (*Payment, error) {
 	ctx := context.Background()
 	db, err := gorm.Open(sqlite.Open(cfg.SQLLite.DSN))
 	if err != nil {
+		return nil, err
+	}
+	if err := db.Use(tracing.NewPlugin()); err != nil {
 		return nil, err
 	}
 	_ = db.AutoMigrate(&model.Payment{})
