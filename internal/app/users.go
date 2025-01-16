@@ -4,6 +4,7 @@
 package app
 
 import (
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"net/http"
 
 	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/config"
@@ -26,9 +27,11 @@ func NewUser(*config.Users) *User {
 }
 
 func (a *User) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /users", a.Handler.List)
-	mux.HandleFunc("POST /users", a.Handler.Create)
-	mux.HandleFunc("GET /users/{id}", a.Handler.Get)
-	mux.HandleFunc("PUT /users/{id}", a.Handler.Update)
-	mux.HandleFunc("DELETE /users/{id}", a.Handler.Delete)
+
+	mux.Handle("GET /users", otelhttp.NewHandler(http.HandlerFunc(a.Handler.List), "GET /users"))
+	mux.Handle("POST /users", otelhttp.NewHandler(http.HandlerFunc(a.Handler.Create), "POST /users"))
+	mux.Handle("GET /users/{id}", otelhttp.NewHandler(http.HandlerFunc(a.Handler.Get), "GET /users/{id}"))
+	mux.Handle("PUT /users/{id}", otelhttp.NewHandler(http.HandlerFunc(a.Handler.Update), "PUT /users/{id}"))
+	mux.Handle("DELETE /users/{id}", otelhttp.NewHandler(http.HandlerFunc(a.Handler.Delete), "DELETE /users/{id}"))
+
 }

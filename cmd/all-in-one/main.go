@@ -4,16 +4,43 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/infra/telemetry"
+	"log"
 	"net"
 	"net/http"
 
 	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/app"
 	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/config"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
 )
 
 func main() {
+
+	tp, err := telemetry.InitTracer()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := tp.(*sdktrace.TracerProvider).Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
+
+	mp, err := telemetry.InitMeter()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := mp.(*sdkmetric.MeterProvider).Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down meter provider: %v", err)
+		}
+	}()
+
 	configFlag := flag.String("config", "", "path to the config file")
 	flag.Parse()
 
