@@ -2,7 +2,7 @@
 
 A ser documentado.
 
-Mas por enquanto, aqui vão alguns exemplos: 
+Mas por enquanto, aqui vão alguns exemplos:
 
 ```terminal
 $ nats-server -D -js
@@ -13,4 +13,9 @@ $ curl -X POST localhost:8080/users -d '{"id": "jpkroehling"}'
 $ curl -X POST localhost:8080/subscriptions -d '{"id": "jpkroehling", "user_id":"jpkroehling", "plan_id":"silver"}'
 $ curl -X POST localhost:8080/payments -d '{"id": "some-uuid", "subscription_id":"jpkroehling", "amount":99, "status":"FAILED"}'
 $ nats -s localhost:4222 stream view payments
+```
+## Iniciar infra com docker-compose
+
+```terminal
+$ docker compose -f $ROOT_PATH/docker/docker-compose.yml up -d
 ```
