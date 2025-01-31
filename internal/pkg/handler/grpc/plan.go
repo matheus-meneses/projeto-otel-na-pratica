@@ -5,6 +5,8 @@ package grpc
 
 import (
 	"context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"time"
 
 	"github.com/dosedetelemetria/projeto-otel-na-pratica/api"
@@ -28,6 +30,10 @@ func (s *planServer) Get(ctx context.Context, req *api.GetRequest) (*api.GetResp
 	plan, err := s.store.Get(ctx, req.Id)
 	if err != nil {
 		return nil, err
+	}
+
+	if plan == nil {
+		return nil, status.Error(codes.NotFound, "id not found")
 	}
 
 	resp := &api.GetResponse{

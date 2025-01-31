@@ -6,14 +6,14 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/app"
+	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/config"
 	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/infra/telemetry"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"log"
 	"net"
 	"net/http"
-
-	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/app"
-	"github.com/dosedetelemetria/projeto-otel-na-pratica/internal/config"
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
@@ -50,8 +50,7 @@ func main() {
 
 	// starts the gRPC server
 	lis, _ := net.Listen("tcp", c.Server.Endpoint.GRPC)
-	var opts []grpc.ServerOption
-	grpcServer := grpc.NewServer(opts...)
+	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 
 	{
 		a := app.NewUser(&c.Users)
